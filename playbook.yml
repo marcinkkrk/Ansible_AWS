@@ -3,16 +3,30 @@
   tasks:
     - name: Create key pair
       ec2_key:
-        name: sample
-        region: us-east-1
+        name: sample       # key name
+        region: us-east-1  # your region
       register: keyout
 
+      # Save private key in sample.pem file
     - name: save key
       copy:
         content: "{{keyout.key.private_key}}"
         dest: ./sample.pem
       when: keyout.changed
 
+    - ec2:
+        key_name: sample
+        instance_type: t2.micro
+        image: ami-0f9fc25dd2506cf6d # diferent for diferent regions!
+        region: us-east-1
+        wait: yes
+        exact_count: 1 # Count tags 1 time, if they exist dont launch
+        instance_tags:
+           Name: db01
+           db: postgres
+        count_tag:
+           Name: db01
+           db: postgres
 
 
 
